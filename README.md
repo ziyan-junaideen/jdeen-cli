@@ -203,3 +203,15 @@ brew tap ziyan-junaideen/tap
 brew install jdeen-cli
 jdeen --version
 ```
+
+The Homebrew formula installs the bundled agent skill in `~/.agents/skills`.
+When `~/.claude` exists, it also installs the skill in `~/.claude/skills`. To
+install, refresh, or remove it manually:
+
+```sh
+jdeen skills install
+jdeen skills uninstall
+```
+
+Set `JDEEN_SKIP_SKILL_INSTALL=1` while installing with Homebrew to skip
+automatic skill installation.

@@ -1,7 +1,7 @@
 class JdeenCli < Formula
   desc "Command line client for the JDeen JSON:API"
   homepage "https://github.com/ziyan-junaideen/jdeen-cli"
-  url "https://github.com/ziyan-junaideen/jdeen-cli.git", tag: "v0.1.0"
+  url "https://github.com/ziyan-junaideen/jdeen-cli.git", tag: "v0.1.1"
   license "MIT"
   head "https://github.com/ziyan-junaideen/jdeen-cli.git", branch: "main"
 
@@ -12,9 +12,12 @@ class JdeenCli < Formula
     system "go", "build", *std_go_args(ldflags: ldflags, output: bin/"jdeen"), "./cmd/jdeen"
   end
 
+  def post_install
+    system bin/"jdeen", "skills", "install" unless ENV["JDEEN_SKIP_SKILL_INSTALL"]
+  end
+
   test do
     assert_match version.to_s, shell_output("#{bin}/jdeen --version")
     assert_match "JDeen JSON:API", shell_output("#{bin}/jdeen --help")
   end
 end
-

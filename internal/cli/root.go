@@ -41,6 +41,7 @@ func NewRootCommand() *cobra.Command {
 	}
 	root.AddCommand(newProfilesCommand(options))
 	root.AddCommand(newAuthCommand(options))
+	root.AddCommand(newSkillsCommand())
 	root.AddCommand(newResourceCommand(options, postDefinition()))
 	root.AddCommand(newResourceCommand(options, categoryDefinition()))
 	root.AddCommand(newResourceCommand(options, uploadDefinition()))

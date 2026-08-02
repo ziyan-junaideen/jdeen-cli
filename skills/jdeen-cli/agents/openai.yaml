@@ -1,0 +1,4 @@
+interface:
+  display_name: "JDeen CLI"
+  short_description: "Manage JDeen content through the CLI"
+  default_prompt: "Use $jdeen-cli to work with JDeen content through the CLI."
