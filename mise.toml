@@ -1,0 +1,35 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
+[settings]
+lockfile = true
+
+[tools]
+golang = "1.26.5"
+
+[tasks.tidy]
+description = "Resolve and tidy Go dependencies"
+run = "go mod tidy"
+
+[tasks.test]
+description = "Run the test suite"
+run = "go test ./..."
+
+[tasks."test-race"]
+description = "Run the test suite with the race detector"
+run = "go test -race ./..."
+
+[tasks.check]
+description = "Check formatting and run go vet"
+run = [
+  "test -z \"$(gofmt -l .)\"",
+  "go vet ./...",
+]
+
+[tasks.build]
+description = "Build the jdeen executable"
+run = "go build -o bin/jdeen ./cmd/jdeen"
+
+[tasks.run]
+description = "Run the CLI"
+run = "go run ./cmd/jdeen"
+
