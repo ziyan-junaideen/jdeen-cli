@@ -40,7 +40,7 @@ API at `https://api.jdeen.test:4021/v1`.
 jdeen profiles list
 jdeen profiles use dev
 jdeen profiles set local-http --api-url http://api.jdeen.test:4020
-jdeen profiles set dev --ca-cert /Volumes/Dev/JDeen/ex_jdeen/priv/cert/jdeen.test.pem
+jdeen profiles set dev --ca-cert ../backend/priv/cert/jdeen.test.pem
 ```
 
 Configuration is stored in the platform XDG config directory. Command flags
@@ -188,7 +188,7 @@ confirmation.
 
 ## Local smoke test
 
-With `ex_jdeen` running and a confirmed administrator available:
+With the backend in `../backend` running and a confirmed administrator available:
 
 1. Select `dev` and run `jdeen auth login`.
 2. Create a temporary category and upload.
@@ -199,7 +199,7 @@ With `ex_jdeen` running and a confirmed administrator available:
 
 ## Installation with Homebrew
 
-The included formula is prepared for the `v0.1.0` release tag:
+The included formula is prepared for the `v0.1.1` release tag:
 
 ```sh
 brew tap ziyan-junaideen/tap

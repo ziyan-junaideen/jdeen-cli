@@ -33,3 +33,12 @@ run = "go build -o bin/jdeen ./cmd/jdeen"
 description = "Run the CLI"
 run = "go run ./cmd/jdeen"
 
+[tasks.precommit]
+description = "Format, vet, test, race-test, and build the CLI"
+run = [
+  "gofmt -w .",
+  "go vet ./...",
+  "go test ./...",
+  "go test -race ./...",
+  "go build -o bin/jdeen ./cmd/jdeen",
+]
