@@ -51,3 +51,16 @@ func TestReadContentFromStdin(t *testing.T) {
 		t.Fatalf("content = %q", content)
 	}
 }
+
+func TestValidatePublishedAt(t *testing.T) {
+	for _, value := range []string{"", "2020-04-15T10:30:00Z", "2020-04-15T10:30:00+00:00"} {
+		if err := validatePublishedAt(value); err != nil {
+			t.Errorf("validatePublishedAt(%q) returned %v", value, err)
+		}
+	}
+	for _, value := range []string{"2020-04-15", "2020-04-15T10:30:00+05:30", "not-a-time"} {
+		if err := validatePublishedAt(value); err == nil {
+			t.Errorf("validatePublishedAt(%q) unexpectedly succeeded", value)
+		}
+	}
+}

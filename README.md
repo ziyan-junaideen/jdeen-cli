@@ -128,15 +128,18 @@ jdeen posts create \
   --content-file ./post.md \
   --author <user-id> \
   --category <category-id> \
-  --state draft \
+  --state published \
+  --published-at 2020-04-15T10:30:00Z \
   --format markdown
 
-jdeen posts update <post-id> --state published --featured=true
+jdeen posts update <post-id> --state published --published-at 2020-04-15T10:30:00Z
+jdeen posts update <post-id> --published-at 2019-11-20T06:15:00Z
 jdeen posts update <post-id> --clear-categories --clear-banner-upload
 jdeen posts delete <post-id> --yes
 ```
 
 Use `--content-file -` to read post content from stdin.
+Use `--published-at` with an RFC 3339 UTC timestamp to preserve an original publication date when importing a post or to change the date of an existing published post.
 
 ### Categories
 

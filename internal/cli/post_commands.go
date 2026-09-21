@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/ziyan-junaideen/jdeen-cli/internal/jdeenapi"
@@ -11,12 +12,12 @@ import (
 )
 
 type postFlags struct {
-	title, slug, state, content, contentFile, summary, format string
-	featured                                                  bool
-	author, bannerUpload                                      string
-	categories                                                []string
-	clearSummary, clearCategories, clearBanner                bool
-	response                                                  responseFlags
+	title, slug, state, content, contentFile, summary, format, publishedAt string
+	featured                                                               bool
+	author, bannerUpload                                                   string
+	categories                                                             []string
+	clearSummary, clearCategories, clearBanner                             bool
+	response                                                               responseFlags
 }
 
 func (flags *postFlags) bind(command *cobra.Command, create bool) {
@@ -27,6 +28,7 @@ func (flags *postFlags) bind(command *cobra.Command, create bool) {
 	command.Flags().StringVar(&flags.contentFile, "content-file", "", "read post content from a file or - for stdin")
 	command.Flags().StringVar(&flags.summary, "summary", "", "post summary")
 	command.Flags().StringVar(&flags.format, "format", "", "markdown or html")
+	command.Flags().StringVar(&flags.publishedAt, "published-at", "", "publication time as an RFC 3339 UTC timestamp")
 	command.Flags().BoolVar(&flags.featured, "featured", false, "whether the post is featured")
 	command.Flags().StringVar(&flags.author, "author", "", "author user UUID")
 	command.Flags().StringArrayVar(&flags.categories, "category", nil, "category UUID; repeat to set multiple categories")
@@ -63,11 +65,15 @@ func addPostCreate(parent *cobra.Command, options *globalOptions) {
 		if err := validatePostEnums(flags.state, flags.format); err != nil {
 			return err
 		}
+		if err := validatePublishedAt(flags.publishedAt); err != nil {
+			return err
+		}
 		attributes := map[string]any{"title": flags.title, "content": content}
 		setNonEmpty(attributes, "slug", flags.slug)
 		setNonEmpty(attributes, "state", flags.state)
 		setNonEmpty(attributes, "summary", flags.summary)
 		setNonEmpty(attributes, "format", flags.format)
+		setNonEmpty(attributes, "published_at", flags.publishedAt)
 		if command.Flags().Changed("featured") {
 			attributes["featured"] = flags.featured
 		}
@@ -109,11 +115,17 @@ func addPostUpdate(parent *cobra.Command, options *globalOptions) {
 		if err := validatePostEnums(flags.state, flags.format); err != nil {
 			return err
 		}
+		if err := validatePublishedAt(flags.publishedAt); err != nil {
+			return err
+		}
 		attributes := map[string]any{}
 		for name, value := range map[string]string{"title": flags.title, "slug": flags.slug, "state": flags.state, "summary": flags.summary, "format": flags.format} {
 			if command.Flags().Changed(name) {
 				attributes[name] = value
 			}
+		}
+		if command.Flags().Changed("published-at") {
+			attributes["published_at"] = flags.publishedAt
 		}
 		if command.Flags().Changed("content") || command.Flags().Changed("content-file") {
 			attributes["content"] = content
@@ -175,6 +187,21 @@ func addPostUpdate(parent *cobra.Command, options *globalOptions) {
 	}}
 	flags.bind(command, false)
 	parent.AddCommand(command)
+}
+
+func validatePublishedAt(value string) error {
+	if value == "" {
+		return nil
+	}
+	parsed, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		return errors.New("--published-at must be an RFC 3339 UTC timestamp, for example 2020-04-15T10:30:00Z")
+	}
+	_, offset := parsed.Zone()
+	if offset != 0 {
+		return errors.New("--published-at must use UTC (Z or a zero offset)")
+	}
+	return nil
 }
 
 func validatePostEnums(state, format string) error {

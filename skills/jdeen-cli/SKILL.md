@@ -60,8 +60,8 @@ With `--json`, expect the full JSON:API document, including `data`, `included`, 
 Inspect the target before updating or deleting it. Use resource-specific help to confirm flags.
 
 ```sh
-jdeen posts create --title "Title" --content-file ./post.md --author <user-id> --category <category-id> --state draft --format markdown
-jdeen posts update <post-id> --state published
+jdeen posts create --title "Title" --content-file ./post.md --author <user-id> --category <category-id> --state published --published-at 2020-04-15T10:30:00Z --format markdown
+jdeen posts update <post-id> --state published --published-at 2020-04-15T10:30:00Z
 jdeen categories create --name Engineering --description "Engineering notes"
 jdeen uploads create --file ./banner.png --description "Banner" --alt-text "Accessible description"
 jdeen comments create --post <post-id> --user <user-id> --body "A thoughtful response."
