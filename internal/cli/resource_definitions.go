@@ -3,7 +3,7 @@ package cli
 func postDefinition() resourceDefinition {
 	return resourceDefinition{
 		use: "posts", apiType: "posts", short: "Manage blog posts",
-		relationships: map[string]bool{"author": false, "categories": true, "banner_upload": false, "comments": true},
+		relationships: map[string]bool{"author": false, "categories": true, "tags": true, "banner_upload": false, "comments": true},
 		addCreate:     addPostCreate, addUpdate: addPostUpdate,
 	}
 }
@@ -13,6 +13,14 @@ func categoryDefinition() resourceDefinition {
 		use: "categories", apiType: "categories", short: "Manage post categories",
 		relationships: map[string]bool{"posts": true},
 		addCreate:     addCategoryCreate, addUpdate: addCategoryUpdate,
+	}
+}
+
+func tagDefinition() resourceDefinition {
+	return resourceDefinition{
+		use: "tags", apiType: "tags", short: "Manage post tags",
+		relationships: map[string]bool{"posts": true},
+		addCreate:     addTagCreate, addUpdate: addTagUpdate,
 	}
 }
 

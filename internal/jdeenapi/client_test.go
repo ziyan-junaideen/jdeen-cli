@@ -255,6 +255,39 @@ func TestCreateDoesNotRetryAmbiguousFailure(t *testing.T) {
 	}
 }
 
+func TestUpdatePostTagsReplacesAndClearsSet(t *testing.T) {
+	const postID = "0ee67de0-b9e9-43dd-9c50-3804533ddf80"
+	const tagID = "5b7c2f1e-8a4d-4c3b-9f2e-1d6a7b8c9d0e"
+	var bodies []string
+	handler := func(request *http.Request) (*http.Response, error) {
+		if request.Method != http.MethodPatch || request.URL.Path != "/v1/posts/"+postID {
+			t.Errorf("unexpected request %s %s", request.Method, request.URL.Path)
+		}
+		body, _ := io.ReadAll(request.Body)
+		bodies = append(bodies, string(body))
+		return response(http.StatusOK, `{"data":{"type":"posts","id":"`+postID+`","attributes":{}}}`), nil
+	}
+	client, err := New(Config{APIURL: "https://api.test/v1", ProfileName: "test", AccessToken: "direct", Version: "test", HTTPClient: httpClient(handler), LockDir: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, ids := range [][]string{{tagID}, nil} {
+		object := jsonapi.ResourceObject{Type: "posts", ID: postID, Relationships: map[string]jsonapi.RelationshipDocument{"tags": RelationshipMany("tags", ids)}}
+		if _, _, err := client.Update(context.Background(), "posts", postID, object, QueryOptions{}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if len(bodies) != 2 {
+		t.Fatalf("requests = %d, want 2", len(bodies))
+	}
+	if !strings.Contains(bodies[0], `"tags":{"data":[{"type":"tags","id":"`+tagID+`"}]}`) {
+		t.Errorf("unexpected replace body: %s", bodies[0])
+	}
+	if !strings.Contains(bodies[1], `"tags":{"data":[]}`) {
+		t.Errorf("unexpected clear body: %s", bodies[1])
+	}
+}
+
 func TestUploadUsesMultipartAndReturnsChecksum(t *testing.T) {
 	uploadPath := filepath.Join(t.TempDir(), "banner.png")
 	contents := []byte("\x89PNG\r\n\x1a\nimage")

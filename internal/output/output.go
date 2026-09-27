@@ -96,6 +96,8 @@ func collectionColumns(resourceType string) []string {
 		return []string{"ID", "TITLE", "STATE", "FORMAT", "FEATURED", "PUBLISHED AT"}
 	case "categories":
 		return []string{"ID", "NAME", "SLUG", "DESCRIPTION"}
+	case "tags":
+		return []string{"ID", "NAME", "SLUG"}
 	case "uploads":
 		return []string{"ID", "ORIGINAL FILENAME", "CONTENT TYPE", "BYTE SIZE", "DESCRIPTION"}
 	case "post_comments":

@@ -15,8 +15,8 @@ type postFlags struct {
 	title, slug, state, content, contentFile, summary, format, publishedAt string
 	featured                                                               bool
 	author, bannerUpload                                                   string
-	categories                                                             []string
-	clearSummary, clearCategories, clearBanner                             bool
+	categories, tags                                                       []string
+	clearSummary, clearCategories, clearTags, clearBanner                  bool
 	response                                                               responseFlags
 }
 
@@ -32,10 +32,12 @@ func (flags *postFlags) bind(command *cobra.Command, create bool) {
 	command.Flags().BoolVar(&flags.featured, "featured", false, "whether the post is featured")
 	command.Flags().StringVar(&flags.author, "author", "", "author user UUID")
 	command.Flags().StringArrayVar(&flags.categories, "category", nil, "category UUID; repeat to set multiple categories")
+	command.Flags().StringArrayVar(&flags.tags, "tag", nil, "tag UUID; repeat to set multiple tags")
 	command.Flags().StringVar(&flags.bannerUpload, "banner-upload", "", "banner upload UUID")
 	if !create {
 		command.Flags().BoolVar(&flags.clearSummary, "clear-summary", false, "set summary to null")
 		command.Flags().BoolVar(&flags.clearCategories, "clear-categories", false, "replace categories with an empty set")
+		command.Flags().BoolVar(&flags.clearTags, "clear-tags", false, "replace tags with an empty set")
 		command.Flags().BoolVar(&flags.clearBanner, "clear-banner-upload", false, "set banner_upload to null")
 	}
 	flags.response.bind(command)
@@ -56,6 +58,9 @@ func addPostCreate(parent *cobra.Command, options *globalOptions) {
 		}
 		if err := validateIDs(flags.categories); err != nil {
 			return fmt.Errorf("category: %w", err)
+		}
+		if err := validateIDs(flags.tags); err != nil {
+			return fmt.Errorf("tag: %w", err)
 		}
 		if flags.bannerUpload != "" {
 			if err := validateID(flags.bannerUpload); err != nil {
@@ -80,6 +85,9 @@ func addPostCreate(parent *cobra.Command, options *globalOptions) {
 		relationships := map[string]jsonapi.RelationshipDocument{"author": jdeenapi.RelationshipOne("users", flags.author)}
 		if len(flags.categories) > 0 {
 			relationships["categories"] = jdeenapi.RelationshipMany("categories", flags.categories)
+		}
+		if len(flags.tags) > 0 {
+			relationships["tags"] = jdeenapi.RelationshipMany("tags", flags.tags)
 		}
 		if flags.bannerUpload != "" {
 			relationships["banner_upload"] = jdeenapi.RelationshipOne("uploads", flags.bannerUpload)
@@ -156,6 +164,17 @@ func addPostUpdate(parent *cobra.Command, options *globalOptions) {
 			relationships["categories"] = jdeenapi.RelationshipMany("categories", flags.categories)
 		} else if flags.clearCategories {
 			relationships["categories"] = jdeenapi.RelationshipMany("categories", nil)
+		}
+		if command.Flags().Changed("tag") {
+			if flags.clearTags {
+				return errors.New("--tag and --clear-tags cannot be combined")
+			}
+			if err := validateIDs(flags.tags); err != nil {
+				return err
+			}
+			relationships["tags"] = jdeenapi.RelationshipMany("tags", flags.tags)
+		} else if flags.clearTags {
+			relationships["tags"] = jdeenapi.RelationshipMany("tags", nil)
 		}
 		if flags.bannerUpload != "" {
 			if flags.clearBanner {

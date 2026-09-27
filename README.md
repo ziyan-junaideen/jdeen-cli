@@ -87,13 +87,14 @@ and cursor pagination:
 ```sh
 jdeen posts list \
   --filter state=draft \
-  --include author,categories,banner_upload \
+  --include author,categories,tags,banner_upload \
   --fields posts=title,slug,state \
   --sort=-created_at \
   --page-size 25
 
 jdeen posts show <post-id> --include comments.user
 jdeen categories list --filter slug=engineering
+jdeen tags list --filter slug=elixir
 jdeen uploads list --filter checksum_sha256=<sha256>
 jdeen comments list --filter post=<post-id>
 jdeen users list --sort name
@@ -113,6 +114,8 @@ Fetch documented relationships with `related`:
 ```sh
 jdeen posts related <post-id> author
 jdeen posts related <post-id> categories
+jdeen posts related <post-id> tags
+jdeen tags related <tag-id> posts
 jdeen posts related <post-id> comments --include user
 jdeen comments related <comment-id> replies
 jdeen users related <user-id> profile_upload
@@ -128,17 +131,22 @@ jdeen posts create \
   --content-file ./post.md \
   --author <user-id> \
   --category <category-id> \
+  --tag <tag-id> \
+  --tag <another-tag-id> \
   --state published \
   --published-at 2020-04-15T10:30:00Z \
   --format markdown
 
 jdeen posts update <post-id> --state published --published-at 2020-04-15T10:30:00Z
 jdeen posts update <post-id> --published-at 2019-11-20T06:15:00Z
-jdeen posts update <post-id> --clear-categories --clear-banner-upload
+jdeen posts update <post-id> --tag <tag-id>
+jdeen posts update <post-id> --clear-categories --clear-tags --clear-banner-upload
 jdeen posts delete <post-id> --yes
 ```
 
 Use `--content-file -` to read post content from stdin.
+`--category` and `--tag` are repeatable; supplying either on update replaces
+the post's full set, and `--clear-categories` or `--clear-tags` empties it.
 Use `--published-at` with an RFC 3339 UTC timestamp to preserve an original publication date when importing a post or to change the date of an existing published post.
 
 ### Categories
@@ -148,6 +156,17 @@ jdeen categories create --name Engineering --description "Engineering notes"
 jdeen categories update <category-id> --name "Software Engineering"
 jdeen categories delete <category-id> --yes
 ```
+
+### Tags
+
+```sh
+jdeen tags create --name Elixir
+jdeen tags create --name "Phoenix LiveView" --slug liveview
+jdeen tags update <tag-id> --name "Elixir Lang"
+jdeen tags delete <tag-id> --yes
+```
+
+The slug is derived from the name when `--slug` is omitted.
 
 ### Uploads
 
@@ -191,10 +210,10 @@ confirmation.
 With the backend in `../backend` running and a confirmed administrator available:
 
 1. Select `dev` and run `jdeen auth login`.
-2. Create a temporary category and upload.
+2. Create a temporary category, tag, and upload.
 3. Create a draft post using those IDs, then fetch its relationships.
 4. Create and update a comment, and exercise a filtered/paginated list.
-5. Delete the comment, post, upload, and category in that order.
+5. Delete the comment, post, upload, category, and tag in that order.
 6. Run `jdeen auth logout` and confirm the session was revoked.
 
 ## Installation with Homebrew

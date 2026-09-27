@@ -1,6 +1,6 @@
 ---
 name: jdeen-cli
-description: Operate the JDeen JSON:API with the `jdeen` command-line client. Use when an agent needs to authenticate with JDeen, configure API profiles, read or manage posts, categories, uploads, comments, and users, traverse documented relationships, paginate collections, or obtain machine-readable JSON from JDeen environments.
+description: Operate the JDeen JSON:API with the `jdeen` command-line client. Use when an agent needs to authenticate with JDeen, configure API profiles, read or manage posts, categories, tags, uploads, comments, and users, traverse documented relationships, paginate collections, or obtain machine-readable JSON from JDeen environments.
 ---
 
 # JDeen CLI
@@ -36,16 +36,18 @@ Use `jdeen auth sessions list` to inspect sessions and `jdeen auth sessions revo
 Resources support `list`, `show <id>`, and `related <id> <relationship>` operations:
 
 ```sh
-jdeen posts list --filter state=published --include author,categories --sort=-created_at
+jdeen posts list --filter state=published --include author,categories,tags --sort=-created_at
 jdeen posts show <post-id> --include comments.user
 jdeen posts related <post-id> categories
+jdeen posts related <post-id> tags
 jdeen categories list --filter slug=engineering
+jdeen tags list --filter slug=elixir
 jdeen uploads list --filter checksum_sha256=<sha256>
 jdeen comments list --filter post=<post-id>
 jdeen users list --sort name --json
 ```
 
-Available resources are `posts`, `categories`, `uploads`, `comments`, and `users`. Allowed relationships differ by resource; consult command help before using `related` or `--include`.
+Available resources are `posts`, `categories`, `tags`, `uploads`, `comments`, and `users`. Allowed relationships differ by resource; consult command help before using `related` or `--include`.
 
 Collections accept repeatable JSON:API `--filter key=value`, `--include`, `--fields type=field1,field2`, `--sort`, and cursor pagination flags. Follow the exact opaque URL returned in `links.next` or `links.prev` with:
 
@@ -60,13 +62,14 @@ With `--json`, expect the full JSON:API document, including `data`, `included`, 
 Inspect the target before updating or deleting it. Use resource-specific help to confirm flags.
 
 ```sh
-jdeen posts create --title "Title" --content-file ./post.md --author <user-id> --category <category-id> --state published --published-at 2020-04-15T10:30:00Z --format markdown
+jdeen posts create --title "Title" --content-file ./post.md --author <user-id> --category <category-id> --tag <tag-id> --state published --published-at 2020-04-15T10:30:00Z --format markdown
 jdeen posts update <post-id> --state published --published-at 2020-04-15T10:30:00Z
 jdeen categories create --name Engineering --description "Engineering notes"
+jdeen tags create --name Elixir
 jdeen uploads create --file ./banner.png --description "Banner" --alt-text "Accessible description"
 jdeen comments create --post <post-id> --user <user-id> --body "A thoughtful response."
 ```
 
-Use `--content-file -` or `--body-file -` to read from stdin. Clear nullable values and relationships only with explicit flags such as `--clear-summary`, `--clear-categories`, `--clear-banner-upload`, `--clear-description`, or `--clear-alt-text`.
+Use `--content-file -` or `--body-file -` to read from stdin. Repeat `--category` or `--tag` to set several; on update they replace the post's full set. Clear nullable values and relationships only with explicit flags such as `--clear-summary`, `--clear-categories`, `--clear-tags`, `--clear-banner-upload`, `--clear-description`, or `--clear-alt-text`.
 
-Delete with `jdeen <resource> delete <id> --yes` only after the user has authorized deletion and the identifier has been checked. When creating a set of related temporary resources, clean them up in dependency order: comments, posts, uploads, then categories.
+Delete with `jdeen <resource> delete <id> --yes` only after the user has authorized deletion and the identifier has been checked. When creating a set of related temporary resources, clean them up in dependency order: comments, posts, uploads, then categories and tags.
