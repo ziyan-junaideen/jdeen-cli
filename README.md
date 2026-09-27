@@ -220,9 +220,6 @@ With the backend in `../backend` running and a confirmed administrator available
 
 The included formula is prepared for the `v0.2.0` release tag:
 
-The source repository is private. Before installing or upgrading, load a
-GitHub-authorized SSH key into your SSH agent so Homebrew can fetch the tag.
-
 ```sh
 brew tap ziyan-junaideen/tap
 brew install jdeen-cli
