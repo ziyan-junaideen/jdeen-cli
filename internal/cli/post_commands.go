@@ -15,8 +15,9 @@ type postFlags struct {
 	title, slug, state, content, contentFile, summary, format, publishedAt string
 	featured                                                               bool
 	author, bannerUpload                                                   string
-	categories, tags                                                       []string
-	clearSummary, clearCategories, clearTags, clearBanner                  bool
+	category                                                               string
+	tags                                                                   []string
+	clearSummary, clearCategory, clearTags, clearBanner                    bool
 	response                                                               responseFlags
 }
 
@@ -31,12 +32,12 @@ func (flags *postFlags) bind(command *cobra.Command, create bool) {
 	command.Flags().StringVar(&flags.publishedAt, "published-at", "", "publication time as an RFC 3339 UTC timestamp")
 	command.Flags().BoolVar(&flags.featured, "featured", false, "whether the post is featured")
 	command.Flags().StringVar(&flags.author, "author", "", "author user UUID")
-	command.Flags().StringArrayVar(&flags.categories, "category", nil, "category UUID; repeat to set multiple categories")
+	command.Flags().StringVar(&flags.category, "category", "", "category UUID")
 	command.Flags().StringArrayVar(&flags.tags, "tag", nil, "tag UUID; repeat to set multiple tags")
 	command.Flags().StringVar(&flags.bannerUpload, "banner-upload", "", "banner upload UUID")
 	if !create {
 		command.Flags().BoolVar(&flags.clearSummary, "clear-summary", false, "set summary to null")
-		command.Flags().BoolVar(&flags.clearCategories, "clear-categories", false, "replace categories with an empty set")
+		command.Flags().BoolVar(&flags.clearCategory, "clear-category", false, "clear the post category")
 		command.Flags().BoolVar(&flags.clearTags, "clear-tags", false, "replace tags with an empty set")
 		command.Flags().BoolVar(&flags.clearBanner, "clear-banner-upload", false, "set banner_upload to null")
 	}
@@ -56,8 +57,10 @@ func addPostCreate(parent *cobra.Command, options *globalOptions) {
 		if err := validateID(flags.author); err != nil {
 			return fmt.Errorf("author: %w", err)
 		}
-		if err := validateIDs(flags.categories); err != nil {
-			return fmt.Errorf("category: %w", err)
+		if flags.category != "" {
+			if err := validateID(flags.category); err != nil {
+				return fmt.Errorf("category: %w", err)
+			}
 		}
 		if err := validateIDs(flags.tags); err != nil {
 			return fmt.Errorf("tag: %w", err)
@@ -83,8 +86,8 @@ func addPostCreate(parent *cobra.Command, options *globalOptions) {
 			attributes["featured"] = flags.featured
 		}
 		relationships := map[string]jsonapi.RelationshipDocument{"author": jdeenapi.RelationshipOne("users", flags.author)}
-		if len(flags.categories) > 0 {
-			relationships["categories"] = jdeenapi.RelationshipMany("categories", flags.categories)
+		if flags.category != "" {
+			relationships["category"] = jdeenapi.RelationshipOne("categories", flags.category)
 		}
 		if len(flags.tags) > 0 {
 			relationships["tags"] = jdeenapi.RelationshipMany("tags", flags.tags)
@@ -155,15 +158,15 @@ func addPostUpdate(parent *cobra.Command, options *globalOptions) {
 			relationships["author"] = jdeenapi.RelationshipOne("users", flags.author)
 		}
 		if command.Flags().Changed("category") {
-			if flags.clearCategories {
-				return errors.New("--category and --clear-categories cannot be combined")
+			if flags.clearCategory {
+				return errors.New("--category and --clear-category cannot be combined")
 			}
-			if err := validateIDs(flags.categories); err != nil {
+			if err := validateID(flags.category); err != nil {
 				return err
 			}
-			relationships["categories"] = jdeenapi.RelationshipMany("categories", flags.categories)
-		} else if flags.clearCategories {
-			relationships["categories"] = jdeenapi.RelationshipMany("categories", nil)
+			relationships["category"] = jdeenapi.RelationshipOne("categories", flags.category)
+		} else if flags.clearCategory {
+			relationships["category"] = jdeenapi.RelationshipNull()
 		}
 		if command.Flags().Changed("tag") {
 			if flags.clearTags {

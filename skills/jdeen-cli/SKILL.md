@@ -36,9 +36,9 @@ Use `jdeen auth sessions list` to inspect sessions and `jdeen auth sessions revo
 Resources support `list`, `show <id>`, and `related <id> <relationship>` operations:
 
 ```sh
-jdeen posts list --filter state=published --include author,categories,tags --sort=-created_at
+jdeen posts list --filter state=published --include author,category,tags --sort=-created_at
 jdeen posts show <post-id> --include comments.user
-jdeen posts related <post-id> categories
+jdeen posts related <post-id> category
 jdeen posts related <post-id> tags
 jdeen categories list --filter slug=engineering
 jdeen tags list --filter slug=elixir
@@ -70,6 +70,6 @@ jdeen uploads create --file ./banner.png --description "Banner" --alt-text "Acce
 jdeen comments create --post <post-id> --user <user-id> --body "A thoughtful response."
 ```
 
-Use `--content-file -` or `--body-file -` to read from stdin. Repeat `--category` or `--tag` to set several; on update they replace the post's full set. Clear nullable values and relationships only with explicit flags such as `--clear-summary`, `--clear-categories`, `--clear-tags`, `--clear-banner-upload`, `--clear-description`, or `--clear-alt-text`.
+Use `--content-file -` or `--body-file -` to read from stdin. Set one category with `--category`; repeat `--tag` to set several tags. On update, supplied tags replace the post's full tag set. Clear nullable values and relationships only with explicit flags such as `--clear-summary`, `--clear-category`, `--clear-tags`, `--clear-banner-upload`, `--clear-description`, or `--clear-alt-text`.
 
 Delete with `jdeen <resource> delete <id> --yes` only after the user has authorized deletion and the identifier has been checked. When creating a set of related temporary resources, clean them up in dependency order: comments, posts, uploads, then categories and tags.

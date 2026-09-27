@@ -87,7 +87,7 @@ and cursor pagination:
 ```sh
 jdeen posts list \
   --filter state=draft \
-  --include author,categories,tags,banner_upload \
+  --include author,category,tags,banner_upload \
   --fields posts=title,slug,state \
   --sort=-created_at \
   --page-size 25
@@ -113,7 +113,7 @@ Fetch documented relationships with `related`:
 
 ```sh
 jdeen posts related <post-id> author
-jdeen posts related <post-id> categories
+jdeen posts related <post-id> category
 jdeen posts related <post-id> tags
 jdeen tags related <tag-id> posts
 jdeen posts related <post-id> comments --include user
@@ -140,13 +140,13 @@ jdeen posts create \
 jdeen posts update <post-id> --state published --published-at 2020-04-15T10:30:00Z
 jdeen posts update <post-id> --published-at 2019-11-20T06:15:00Z
 jdeen posts update <post-id> --tag <tag-id>
-jdeen posts update <post-id> --clear-categories --clear-tags --clear-banner-upload
+jdeen posts update <post-id> --clear-category --clear-tags --clear-banner-upload
 jdeen posts delete <post-id> --yes
 ```
 
 Use `--content-file -` to read post content from stdin.
-`--category` and `--tag` are repeatable; supplying either on update replaces
-the post's full set, and `--clear-categories` or `--clear-tags` empties it.
+`--category` sets one category. `--tag` is repeatable; supplying tags on update
+replaces the full tag set. Use `--clear-category` or `--clear-tags` to clear them.
 Use `--published-at` with an RFC 3339 UTC timestamp to preserve an original publication date when importing a post or to change the date of an existing published post.
 
 ### Categories

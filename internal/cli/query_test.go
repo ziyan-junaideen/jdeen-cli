@@ -9,7 +9,7 @@ import (
 func TestQueryFlagsParsing(t *testing.T) {
 	flags := queryFlags{
 		filters:  []string{"state=draft", "state=published", "author.name=Ziyan Junaideen"},
-		includes: []string{"author,categories", "comments.user"}, fields: []string{"posts=title,state"},
+		includes: []string{"author,category", "comments.user"}, fields: []string{"posts=title,state"},
 		pageSize: 25, pageSizeSet: true,
 	}
 	options, err := flags.options()
@@ -101,5 +101,28 @@ func TestPostTagFlagValidation(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), test.want) {
 			t.Errorf("%v: error = %v, want %q", test.args, err, test.want)
 		}
+	}
+}
+
+func TestPostCategoryFlagValidation(t *testing.T) {
+	const postID = "0ee67de0-b9e9-43dd-9c50-3804533ddf80"
+	for _, test := range []struct {
+		args []string
+		want string
+	}{
+		{[]string{"posts", "update", postID, "--category", postID, "--clear-category"}, "--category and --clear-category cannot be combined"},
+		{[]string{"posts", "create", "--title", "T", "--content", "C", "--author", postID, "--category", "not-a-uuid"}, "category:"},
+	} {
+		root := NewRootCommand()
+		root.SetArgs(test.args)
+		root.SetOut(io.Discard)
+		root.SetErr(io.Discard)
+		err := root.Execute()
+		if err == nil || !strings.Contains(err.Error(), test.want) {
+			t.Errorf("%v: error = %v, want %q", test.args, err, test.want)
+		}
+	}
+	if many, ok := postDefinition().relationships["category"]; !ok || many {
+		t.Fatal("post category must be a to-one relationship")
 	}
 }
