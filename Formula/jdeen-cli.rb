@@ -1,5 +1,5 @@
 class JdeenCli < Formula
-  desc "Command line client for the JDeen JSON:API"
+  desc "Command-line client for the JDeen JSON:API"
   homepage "https://github.com/ziyan-junaideen/jdeen-cli"
   url "https://github.com/ziyan-junaideen/jdeen-cli.git", tag: "v0.2.0"
   license "MIT"
@@ -10,10 +10,6 @@ class JdeenCli < Formula
   def install
     ldflags = "-s -w -X github.com/ziyan-junaideen/jdeen-cli/internal/cli.version=#{version}"
     system "go", "build", *std_go_args(ldflags: ldflags, output: bin/"jdeen"), "./cmd/jdeen"
-  end
-
-  def post_install
-    system bin/"jdeen", "skills", "install" unless ENV["JDEEN_SKIP_SKILL_INSTALL"]
   end
 
   test do
