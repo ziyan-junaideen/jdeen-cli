@@ -1,7 +1,7 @@
 class JdeenCli < Formula
   desc "Command line client for the JDeen JSON:API"
   homepage "https://github.com/ziyan-junaideen/jdeen-cli"
-  url "https://github.com/ziyan-junaideen/jdeen-cli.git", tag: "v0.1.1"
+  url "https://github.com/ziyan-junaideen/jdeen-cli.git", tag: "v0.2.0"
   license "MIT"
   head "https://github.com/ziyan-junaideen/jdeen-cli.git", branch: "main"
 

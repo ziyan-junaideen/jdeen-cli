@@ -218,7 +218,7 @@ With the backend in `../backend` running and a confirmed administrator available
 
 ## Installation with Homebrew
 
-The included formula is prepared for the `v0.1.1` release tag:
+The included formula is prepared for the `v0.2.0` release tag:
 
 ```sh
 brew tap ziyan-junaideen/tap
